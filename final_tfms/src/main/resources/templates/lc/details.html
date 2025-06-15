@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:java="http://www.thymeleaf.org/extras/java">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter of Credit Details - TFMS</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3; /* Darker blue for primary actions */
+            --secondary-color: #6c757d; /* Gray for secondary elements */
+            --amend-color: #ffc107; /* Amber for amend action */
+            --success-color: #28a745; /* Green for success */
+            --error-color: #dc3545; /* Red for errors */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0;
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .content-container {
+            background-color: var(--text-light);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 750px; /* Slightly wider for better detail display */
+            margin: 20px auto;
+            box-sizing: border-box;
+            flex-grow: 1;
+        }
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px; /* Gap between detail items */
+        }
+        @media (min-width: 576px) { /* Two columns on medium screens and up */
+            .detail-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+        .detail-item {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03); /* Subtle shadow for each item */
+        }
+        .detail-item strong {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-item span {
+            color: var(--text-dark);
+            font-size: 1.05em;
+            word-wrap: break-word; /* Ensure long text wraps */
+        }
+        .detail-item.description {
+            grid-column: 1 / -1; /* Make description span full width */
+        }
+        .detail-item.description span {
+            font-size: 0.95em;
+            white-space: pre-wrap; /* Preserve line breaks in description */
+        }
+
+        .actions {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .actions a {
+            display: inline-flex; /* Use flex for icon and text alignment */
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px 15px; /* Margin for spacing between buttons */
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+        .actions a i {
+            margin-right: 8px;
+        }
+        .actions a.amend-button {
+            background-color: var(--amend-color);
+            color: var(--text-dark); /* Dark text for amber button */
+        }
+        .actions a.amend-button:hover {
+            background-color: #e0a800; /* Darker amber */
+            transform: translateY(-2px);
+        }
+        .actions a.back-button {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+        .actions a.back-button:hover {
+            background-color: #004085;
+            transform: translateY(-2px);
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .message i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid #f5c6cb;
+        }
+        .not-found-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            background-color: #fcfcfc;
+            border-radius: var(--border-radius);
+            border: 1px dashed #ced4da;
+            margin-top: 20px;
+        }
+        .not-found-message a {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+            width: 100%;
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                margin: 20px;
+                padding: 25px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 25px;
+            }
+            .detail-item strong {
+                font-size: 0.85em;
+            }
+            .detail-item span {
+                font-size: 1em;
+            }
+            .actions a {
+                width: calc(100% - 20px); /* Adjust width considering margin */
+                margin: 0 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard"><i class="fas fa-handshake"></i> TFMS - Customer Portal</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/lc/my-lcs"><i class="fas fa-list-alt"></i> View My LCs <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lc/create"><i class="fas fa-plus-circle"></i> Create New LC</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content-container">
+        <h1>Letter of Credit Details</h1>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="message error-message">
+            <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div th:if="${letterOfCredit}" class="detail-grid">
+            <div class="detail-item">
+                <strong>LC ID:</strong> <span th:text="${letterOfCredit.lcId}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Reference Number:</strong> <span th:text="${letterOfCredit.referenceNumber}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Amount:</strong> <span th:text="${#numbers.formatCurrency(letterOfCredit.amount)}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Currency:</strong> <span th:text="${letterOfCredit.currency ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Desired Validity Period:</strong> <span th:text="${letterOfCredit.desiredValidityPeriod ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Current Status:</strong> <span th:text="${letterOfCredit.status != null ? letterOfCredit.status.displayName : 'N/A'}"></span>
+            </div>
+
+            <div class="detail-item">
+                <strong>Issue Date (Bank):</strong>
+                <span th:if="${letterOfCredit.issueDate}" th:text="${letterOfCredit.issueDate.format(T(java.time.format.DateTimeFormatter).ofPattern('dd-MMM-yyyy'))}"></span>
+                <span th:unless="${letterOfCredit.issueDate}">Pending / Not Set</span>
+            </div>
+
+            <div class="detail-item">
+                <strong>Expiry Date (Bank):</strong>
+                <span th:if="${letterOfCredit.expiryDate}" th:text="${letterOfCredit.expiryDate.format(T(java.time.format.DateTimeFormatter).ofPattern('dd-MMM-yyyy'))}"></span>
+                <span th:unless="${letterOfCredit.expiryDate}">Pending / Not Set</span>
+            </div>
+
+            <div class="detail-item">
+                <strong>Applicant Name:</strong> <span th:text="${letterOfCredit.applicantBank}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Applicant Country:</strong> <span th:text="${letterOfCredit.applicantCountry ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Beneficiary Name:</strong> <span th:text="${letterOfCredit.beneficiaryBank}"></span>
+            </div>
+            <div class="detail-item">
+                <strong>Beneficiary Country:</strong> <span th:text="${letterOfCredit.beneficiaryCountry ?: 'N/A'}"></span>
+            </div>
+            <div class="detail-item description">
+                <strong>Description:</strong> <span th:text="${letterOfCredit.description ?: 'N/A'}"></span>
+            </div>
+
+            <div class="actions">
+                <a th:href="@{/lc/amend/{id}(id=${letterOfCredit.lcId})}" class="amend-button">
+                    <i class="fas fa-edit"></i> Amend LC
+                </a>
+                <a th:href="@{/lc/my-lcs}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to My LCs
+                </a>
+            </div>
+        </div>
+        <div th:unless="${letterOfCredit}" class="not-found-message">
+            <p><i class="fas fa-exclamation-circle"></i> Letter of Credit not found or you do not have permission to view it.</p>
+            <p><a th:href="@{/lc/my-lcs}">Go back to My LCs</a></p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

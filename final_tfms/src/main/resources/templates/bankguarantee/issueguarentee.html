@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Guarantee - TFMS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #28a745; /* Admin Green */
+            --secondary-color: #6c757d;
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+            --success-btn-bg: #28a745;
+            --success-btn-hover-bg: #218838;
+            --danger-btn-bg: #dc3545;
+            --danger-btn-hover-bg: #c82333;
+            --info-card-title: #17a2b8; /* Info blue for card titles */
+            --warning-alert-bg: #fff3cd;
+            --warning-alert-text: #664d03;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0;
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .container {
+            flex-grow: 1;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h2 i {
+            margin-right: 12px;
+        }
+        .container p {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.05em;
+            color: var(--secondary-color);
+        }
+
+        .card {
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,.1);
+            border-radius: var(--border-radius);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,.15);
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+            font-size: 1.15em;
+            display: flex;
+            align-items: center;
+        }
+        .card-header i {
+            margin-right: 10px;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .card-title {
+            color: var(--text-dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+        .card-title i {
+            margin-right: 10px;
+            color: var(--info-card-title); /* Info blue for card title icon */
+        }
+        .card-text {
+            font-size: 1em;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .card-text strong {
+            color: var(--text-dark);
+            min-width: 120px; /* Align labels */
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .card-text a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .card-text a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-success {
+            background-color: var(--success-btn-bg);
+            border-color: var(--success-btn-bg);
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-success:hover {
+            background-color: var(--success-btn-hover-bg);
+            border-color: var(--success-btn-hover-bg);
+            transform: translateY(-2px);
+        }
+        .btn-success i {
+            margin-right: 8px;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-btn-bg);
+            border-color: var(--danger-btn-bg);
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-danger:hover {
+            background-color: var(--danger-btn-hover-bg);
+            border-color: var(--danger-btn-hover-bg);
+            transform: translateY(-2px);
+        }
+        .btn-danger i {
+            margin-right: 8px;
+        }
+
+        .alert-success {
+            color: var(--success-message-text);
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+        }
+        .alert-success i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .alert-danger {
+            color: var(--error-message-text);
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+        }
+        .alert-danger i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .text-muted-custom {
+            color: var(--secondary-color) !important;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--warning-alert-bg);
+            border: 1px solid #ffeeba;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .text-muted-custom i {
+            margin-right: 10px;
+            color: var(--warning-alert-text);
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+            width: 100%;
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+            h2 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+            .container p {
+                margin-bottom: 20px;
+            }
+            .card {
+                margin-bottom: 20px;
+            }
+            .card-body {
+                padding: 20px;
+            }
+            .card-title {
+                font-size: 1.15em;
+            }
+            .card-text {
+                font-size: 0.95em;
+            }
+            .btn-success, .btn-danger {
+                padding: 8px 15px;
+                font-size: 0.95em;
+            }
+            .text-muted-custom {
+                font-size: 1em;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/adashboard"><i class="fas fa-user-shield"></i> TFMS - Admin Portal</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/issueguarentee"><i class="fas fa-file-signature"></i> Issue Guarantee <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/guarentees"><i class="fas fa-list-alt"></i> All Guarantees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alogout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h2><i class="fas fa-hourglass-half"></i> Pending Bank Guarantees for Review</h2>
+    <p>Review and manage customer guarantee requests. Approve to issue the guarantee, or reject if it does not meet requirements.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-lg-6 mb-4" th:each="guarantee : ${guarantees}">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-file-alt"></i> Guarantee Request Details
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-id-badge"></i> Guarantee ID: <span th:text="${guarantee.guaranteeId}"></span></h5>
+                    <p class="card-text">
+                        <strong><i class="fas fa-user"></i> Applicant:</strong>
+                        <span th:text="${guarantee.applicantName}">Applicant Name</span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-building"></i> Beneficiary:</strong>
+                        <span th:text="${guarantee.beneficiaryName}">Beneficiary Name</span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-money-bill-wave"></i> Amount:</strong>
+                        <span th:text="${#numbers.formatCurrency(guarantee.guaranteeAmount)}">Amount</span>
+                        <span th:text="${guarantee.currency}">Currency</span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-calendar-alt"></i> Validity:</strong>
+                        <span th:text="${guarantee.validityPeriod}">Validity</span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-file-upload"></i> Wealth Document:</strong>
+                        <a th:if="${guarantee.wealthDocument != null and !guarantee.wealthDocument.isEmpty()}"
+                           th:href="${guarantee.wealthDocument}" target="_blank"
+                           th:text="${guarantee.wealthDocument}"></a>
+                        <span th:unless="${guarantee.wealthDocument != null and !guarantee.wealthDocument.isEmpty()}">N/A</span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-info-circle"></i> Current Status:</strong>
+                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-start"></i> <span th:text="${guarantee.status}">Status</span></span>
+                    </p>
+                    <p class="card-text">
+                        <strong><i class="fas fa-clock"></i> Requested Date:</strong>
+                        <span th:text="${#dates.format(guarantee.date, 'dd-MM-yyyy HH:mm')}">Date</span>
+                    </p>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <form th:action="@{/approveGuarantee/{id}(id=${guarantee.guaranteeId})}" method="post">
+                            <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> Approve</button>
+                        </form>
+                        <form th:action="@{/rejectGuarantee/{id}(id=${guarantee.guaranteeId})}" method="post">
+                            <button type="submit" class="btn btn-danger"><i class="fas fa-times-circle"></i> Reject</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(guarantees)}" class="col-12">
+            <p class="text-muted-custom">
+                <i class="fas fa-clipboard-check"></i> No pending bank guarantees to review at this time.
+            </p>
+        </div>
+    </div>
+</div>
+<footer class="footer">
+    <div class="container">
+        <span>&copy; 2025 TFMS. All rights reserved.</span>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

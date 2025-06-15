@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Letters of Credit - TFMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3; /* Darker blue for primary actions */
+            --secondary-color: #6c757d; /* Gray for secondary elements */
+            --accent-color: #28a745; /* Green for success/highlights */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0; /* Navbar handles top spacing */
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .content-container {
+            background-color: var(--text-light);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1400px; /* Increased max-width for better table display */
+            margin: 20px auto;
+            box-sizing: border-box;
+            flex-grow: 1; /* Allow content to take available space */
+        }
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .add-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .add-button {
+            background-color: var(--accent-color); /* Green for add button */
+            color: var(--text-light);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        .add-button i {
+            margin-right: 8px;
+        }
+        .add-button:hover {
+            background-color: #218838; /* Darker green on hover */
+            transform: translateY(-2px);
+            color: var(--text-light); /* Keep text color white on hover */
+        }
+        table {
+            width: 100%;
+            border-collapse: separate; /* Use separate for border-radius on cells */
+            border-spacing: 0;
+            margin-top: 20px;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.05); /* Add shadow to the table itself */
+            border-radius: var(--border-radius);
+            overflow: hidden; /* Ensures border-radius applies to table */
+        }
+        th, td {
+            padding: 15px; /* Increased padding for better readability */
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0; /* Lighter border */
+        }
+        th {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: bold;
+            position: sticky; /* Make header sticky for scrolling table */
+            top: 0;
+            z-index: 1; /* Ensure header stays above content */
+        }
+        th i {
+            margin-right: 5px;
+        }
+        th:first-child {
+            border-top-left-radius: var(--border-radius);
+        }
+        th:last-child {
+            border-top-right-radius: var(--border-radius);
+        }
+        tr:last-child td {
+            border-bottom: none; /* No border for the last row */
+        }
+        tbody tr:hover {
+            background-color: #e9f2f9; /* Light blue on row hover */
+            cursor: pointer;
+        }
+        .action-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-right: 15px; /* Increased margin */
+            transition: color 0.3s ease;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        .action-links a i {
+            margin-right: 5px;
+        }
+        .action-links a:hover {
+            color: #004085; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .message i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .no-records {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            background-color: #fcfcfc;
+            border-radius: var(--border-radius);
+            border: 1px dashed #ced4da;
+            margin-top: 20px;
+        }
+        .no-records p:last-child {
+            margin-bottom: 0;
+        }
+        .no-records i {
+            margin-bottom: 15px;
+            font-size: 2em;
+            color: #ccc;
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+            width: 100%;
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        /* Responsive adjustments */
+
+        /* Default for larger screens: table-responsive enables horizontal scrolling */
+        .table-responsive-lg {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+        }
+        /* Ensure table takes full width when responsive */
+        .table-responsive-lg table {
+            min-width: 1000px; /* Adjust this value if your content is wider */
+        }
+
+
+        @media (max-width: 991.98px) { /* Medium devices and down (Bootstrap's lg breakpoint) */
+            .content-container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .add-button-container {
+                justify-content: center;
+            }
+            .add-button {
+                width: auto; /* Allow button to shrink */
+            }
+
+            /* --- Mobile Table Stacking --- */
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            /* Hide table headers (but not display: none;, for accessibility) */
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #dee2e6;
+                margin-bottom: 20px; /* Increased margin between stacked rows */
+                border-radius: var(--border-radius);
+                overflow: hidden;
+                box-shadow: var(--card-shadow);
+                padding: 15px; /* Padding for the entire stacked row */
+            }
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%; /* Space for the data-label */
+                text-align: right;
+                white-space: normal; /* Allow text to wrap */
+                font-size: 0.95em;
+                padding-top: 8px; /* Vertical spacing for stacked items */
+                padding-bottom: 8px;
+            }
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 30px); /* Adjust width to fit */
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--text-dark);
+            }
+            .action-links {
+                text-align: right;
+                padding-top: 15px; /* More space above actions */
+                border-top: 1px solid #eee;
+                margin-top: 10px; /* Space from last data item */
+            }
+            .action-links a {
+                margin-right: 10px;
+                margin-left: 0;
+            }
+            .message {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 575.98px) { /* Extra small devices */
+            .content-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.6em;
+                margin-bottom: 20px;
+            }
+            .add-button {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+            tr {
+                padding: 10px;
+            }
+            td {
+                padding-left: 45%;
+                font-size: 0.9em;
+            }
+            td:before {
+                left: 10px;
+                width: calc(45% - 20px);
+                font-size: 0.9em;
+            }
+            .action-links a {
+                font-size: 0.9em;
+                margin-right: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard"><i class="fas fa-handshake"></i> TFMS - Customer Portal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/requestguarantee"><i class="fas fa-handshake"></i> Request Bank Guarantee</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lc/create"><i class="fas fa-plus-circle"></i> Request Letter of Credit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/documents/upload"><i class="fas fa-upload"></i> Upload Trade Document</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/lc/my-lcs"><i class="fas fa-list-alt"></i> View My LCs <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/myguarantees"><i class="fas fa-shield-alt"></i> View My Guarantees</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content-container">
+        <h1><i class="fas fa-folder-open"></i> My Letters of Credit</h1>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+
+        <div class="add-button-container">
+            <a th:href="@{/lc/create}" class="add-button">
+                <i class="fas fa-plus"></i> Create New LC
+            </a>
+        </div>
+
+        <div th:if="${lcs.isEmpty()}" class="no-records">
+            <i class="fas fa-info-circle"></i>
+            <p>You currently have no Letters of Credit.</p>
+            <p>Click **"Create New LC"** above to submit your first request!</p>
+        </div>
+        <div th:unless="${lcs.isEmpty()}" class="table-responsive-lg">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> LcID</th>
+                        <th><i class="fas fa-receipt"></i> Reference No.</th>
+                        <th><i class="fas fa-building"></i> Applicant Name</th>
+                        <th><i class="fas fa-globe-americas"></i> Applicant Country</th>
+                        <th><i class="fas fa-university"></i> Beneficiary Name</th>
+                        <th><i class="fas fa-globe-americas"></i> Beneficiary Country</th>
+                        <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                        <th><i class="fas fa-money-bill-wave"></i> Currency</th>
+                        <th><i class="fas fa-calendar-alt"></i> Issue Date</th>
+                        <th><i class="fas fa-calendar-times"></i> Expiry Date</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="lc : ${lcs}">
+                        <td data-label="LcID" th:text="${lc.lcId}"></td>
+                        <td data-label="Reference No." th:text="${lc.referenceNumber}"></td>
+                        <td data-label="Applicant Name" th:text="${lc.applicantBank}"></td>
+                        <td data-label="Applicant Country" th:text="${lc.applicantCountry}"></td>
+                        <td data-label="Beneficiary Name" th:text="${lc.beneficiaryBank}"></td>
+                        <td data-label="Beneficiary Country" th:text="${lc.beneficiaryCountry}"></td>
+                        <td data-label="Amount" th:text="${#numbers.formatCurrency(lc.amount)}"></td>
+                        <td data-label="Currency" th:text="${lc.currency}"></td>
+                        <td data-label="Issue Date" th:text="${lc.issueDate != null ? #temporals.format(lc.issueDate, 'dd-MMM-yyyy') : 'N/A'}"></td>
+                        <td data-label="Expiry Date" th:text="${lc.expiryDate != null ? #temporals.format(lc.expiryDate, 'dd-MMM-yyyy') : 'N/A'}"></td>
+                        <td data-label="Status" th:text="${lc.status != null ? lc.status.displayName : 'N/A'}"></td>
+                        <td data-label="Actions" class="action-links">
+                            <a th:href="@{/lc/details/{id}(id=${lc.lcId})}" title="View Details"><i class="fas fa-eye"></i> View</a>
+                            <a th:href="@{/lc/amend/{id}(id=${lc.lcId})}" title="Amend LC"><i class="fas fa-edit"></i> Amend</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

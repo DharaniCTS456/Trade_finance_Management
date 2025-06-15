@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Letter of Credit - TFMS</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3; /* Darker blue for primary actions */
+            --secondary-color: #6c757d; /* Gray for secondary elements */
+            --accent-color: #28a745; /* Green for success/highlights */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0; /* Remove default body padding */
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px; /* Space below navbar */
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .form-container {
+            background-color: var(--text-light);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px; /* Increased max-width for better form layout */
+            margin: 20px auto; /* Center with margin */
+            box-sizing: border-box;
+        }
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25); /* Primary color with transparency */
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 14px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-submit:hover {
+            background-color: #004085; /* Even darker blue on hover */
+            transform: translateY(-2px);
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 0.95em;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+            width: 100%;
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar-brand, .nav-link {
+                font-size: 0.95em;
+            }
+            .form-container {
+                margin: 20px;
+                padding: 25px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 25px;
+            }
+            label {
+                font-size: 0.9em;
+            }
+            input[type="text"],
+            input[type="number"],
+            input[type="date"],
+            textarea,
+            select {
+                padding: 10px 12px;
+                font-size: 0.95em;
+            }
+            .btn-submit {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard"><i class="fas fa-handshake"></i> TFMS - Customer Portal</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lc/my-lcs"><i class="fas fa-list-alt"></i> View My LCs</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/lc/create"><i class="fas fa-plus-circle"></i> Request New LC <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h1>Request New Letter of Credit</h1>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="message error-message">
+            <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <form th:action="@{/lc/create}" th:object="${letterOfCredit}" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                         <label for="applicantBank">Applicant Name:</label>
+                         <input type="text" id="applicantBank" th:field="*{applicantBank}" placeholder="Your company name" required />
+                     </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="applicantCountry">Applicant Country:</label>
+                        <select id="applicantCountry" th:field="*{applicantCountry}" required>
+                            <option value="">-- Select Country --</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="JP">Japan</option>
+                            <option value="CN">China</option>
+                            <option value="IN">India</option>
+                            <option value="AU">Australia</option>
+                            <option value="BR">Brazil</option>
+                            <option value="MX">Mexico</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="SG">Singapore</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="RU">Russia</option>
+                            <option value="KR">South Korea</option>
+                            <option value="IT">Italy</option>
+                            <option value="ES">Spain</option>
+                            <option value="NL">Netherlands</option>
+                            <option value="SE">Sweden</option>
+                            <option value="CH">Switzerland</option>
+                            <option value="PK">Pakistan</option>
+                            <option value="BD">Bangladesh</option>
+                            <option value="VN">Vietnam</option>
+                            <option value="ID">Indonesia</option>
+                            <option value="MY">Malaysia</option>
+                            <option value="TH">Thailand</option>
+                            <option value="PH">Philippines</option>
+                            <option value="EG">Egypt</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="KE">Kenya</option>
+                            </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                     <div class="form-group">
+                          <label for="beneficiaryBank">Beneficiary Name:</label>
+                           <input type="text" id="beneficiaryBank" th:field="*{beneficiaryBank}" placeholder="Recipient company name" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="beneficiaryCountry">Beneficiary Country:</label>
+                        <select id="beneficiaryCountry" th:field="*{beneficiaryCountry}" required>
+                            <option value="">-- Select Country --</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="JP">Japan</option>
+                            <option value="CN">China</option>
+                            <option value="IN">India</option>
+                            <option value="AU">Australia</option>
+                            <option value="BR">Brazil</option>
+                            <option value="MX">Mexico</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="SG">Singapore</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="RU">Russia</option>
+                            <option value="KR">South Korea</option>
+                            <option value="IT">Italy</option>
+                            <option value="ES">Spain</option>
+                            <option value="NL">Netherlands</option>
+                            <option value="SE">Sweden</option>
+                            <option value="CH">Switzerland</option>
+                            <option value="PK">Pakistan</option>
+                            <option value="BD">Bangladesh</option>
+                            <option value="VN">Vietnam</option>
+                            <option value="ID">Indonesia</option>
+                            <option value="MY">Malaysia</option>
+                            <option value="TH">Thailand</option>
+                            <option value="PH">Philippines</option>
+                            <option value="EG">Egypt</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="KE">Kenya</option>
+                            </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" id="amount" th:field="*{amount}" step="0.01" placeholder="e.g., 100000.00" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="currency">Currency:</label>
+                        <select id="currency" th:field="*{currency}" required>
+                            <option value="">-- Select Currency --</option>
+                            <option value="USD">USD - United States Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="desiredValidityPeriod">Desired Validity Period (e.g., 90 days from issue, 6 months):</label>
+                <input type="text" id="desiredValidityPeriod" th:field="*{desiredValidityPeriod}" placeholder="e.g., 90 days, until 2025-12-31" />
+            </div>
+            <div class="form-group">
+                <label for="description">Description (Purpose of LC, goods involved, terms):</label>
+                <textarea id="description" th:field="*{description}" placeholder="e.g., Payment for import of automotive parts from Germany as per contract #XYZ"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Submit LC Request <i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

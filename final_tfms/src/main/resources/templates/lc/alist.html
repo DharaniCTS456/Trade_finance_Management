@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:java="http://www.thymeleaf.org/extras/java">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Letters of Credit (Admin) - TFMS</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #28a745; /* Admin Green */
+            --secondary-color: #6c757d;
+            --accent-color: #0056b3; /* Blue for alerts/highlights/some links */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+            --action-view-color: #007bff; /* Blue for View action */
+            --action-amend-color: #ffc107; /* Amber for Amend action */
+            --action-close-color: #dc3545; /* Red for Close action */
+            --success-message-bg: #d4edda;
+            --success-message-text: #155724;
+            --error-message-bg: #f8d7da;
+            --error-message-text: #721c24;
+        }
+
+        html {
+            height: 100%; /* Ensures html takes full height */
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            /* align-items: center;  Removed as it can interfere with full width elements */
+            padding-top: 0;
+            margin: 0; /* Remove default body margin */
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+        .nav-item.active .nav-link {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .container {
+           
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1400px;
+            margin: 20px auto; /* Keep auto for horizontal centering */
+            box-sizing: border-box;
+            flex-grow: 1; /* Allows container to grow and push footer down */
+        }
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1300px; /* Adjusted min-width slightly */
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef; /* Lighter border */
+            vertical-align: middle; /* Center content vertically */
+            white-space: nowrap;
+        }
+        th {
+            background-color: var(--primary-color); /* Admin green for table headers */
+            color: var(--text-light);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10; /* Ensures header stays on top when scrolling */
+        }
+        th i {
+            margin-right: 5px;
+        }
+        tr:hover {
+            background-color: #f8f9fa; /* Lighter hover for rows */
+        }
+        .action-links a, .action-links button {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-right: 8px; /* Space between action buttons */
+        }
+        .action-links a:last-child, .action-links button:last-child {
+            margin-right: 0;
+        }
+        .action-links a i, .action-links button i {
+            margin-right: 5px;
+        }
+
+        /* Specific Action Button Styles */
+        .action-links .view-button {
+            background-color: var(--action-view-color);
+            color: var(--text-light);
+        }
+        .action-links .view-button:hover {
+            background-color: #0056b3;
+        }
+        .action-links .amend-button {
+            background-color: var(--action-amend-color);
+            color: var(--text-dark); /* Dark text for amber */
+        }
+        .action-links .amend-button:hover {
+            background-color: #e0a800;
+        }
+        .action-links .close-button {
+            background-color: var(--action-close-color);
+            color: var(--text-light);
+            border: none;
+            cursor: pointer;
+        }
+        .action-links .close-button:hover {
+            background-color: #c82333;
+        }
+        .action-links .risk-analyze-button {
+             background-color: var(--secondary-color); /* Gray for analyze button */
+             color: var(--text-light);
+             border: none;
+             cursor: pointer;
+        }
+        .action-links .risk-analyze-button:hover {
+             background-color: #5a6268;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .message i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success-message {
+            background-color: var(--success-message-bg);
+            color: var(--success-message-text);
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            background-color: var(--error-message-bg);
+            color: var(--error-message-text);
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Risk Score Coloring */
+        .risk-score-high { color: var(--error-message-text); font-weight: bold; } /* Using existing error text color */
+        .risk-score-moderate { color: orange; font-weight: bold; }
+        .risk-score-low { color: var(--primary-color); font-weight: bold; } /* Green for low risk */
+
+        .no-records {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            background-color: #fcfcfc;
+            border-radius: var(--border-radius);
+            border: 1px dashed #ced4da;
+            margin-top: 20px;
+        }
+
+        /* Footer styling */
+		.footer {
+		    background-color: var(--text-dark);
+		    color: var(--text-light);
+		    padding: 20px 0;
+		    text-align: center;
+		    margin-top: auto; /* Push footer to the bottom */
+		    width: 100%;
+		    box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+		}
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 25px;
+            }
+            th, td {
+                padding: 8px 10px;
+            }
+            .action-links a, .action-links button {
+                padding: 5px 8px;
+                font-size: 0.85em;
+                margin-right: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/adashboard"><i class="fas fa-user-shield"></i> TFMS - Admin Portal</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/lc/admin/all"><i class="fas fa-file-invoice-dollar"></i> Manage LCs <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/alogout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>All Letters of Credit (Admin View)</h1>
+
+        <div th:if="${successMessage}" class="message success-message">
+            <i class="fas fa-check-circle"></i> <p th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="message error-message">
+            <i class="fas fa-exclamation-triangle"></i> <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div th:if="${lcs.isEmpty()}" class="no-records">
+            <i class="fas fa-info-circle"></i>
+            <p>No Letters of Credit found in the system.</p>
+        </div>
+        <div th:unless="${lcs.isEmpty()}">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-card"></i> LcID</th>
+                            <th><i class="fas fa-hashtag"></i> Reference Number</th>
+                            <th><i class="fas fa-building"></i> Applicant Name</th>
+                            <th><i class="fas fa-globe-americas"></i> Applicant Country</th>
+                            <th><i class="fas fa-university"></i> Beneficiary Name</th>
+                            <th><i class="fas fa-globe-americas"></i> Beneficiary Country</th>
+                            <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                            <th><i class="fas fa-coins"></i> Currency</th>
+                            <th><i class="fas fa-calendar-alt"></i> Desired Validity</th>
+                            <th><i class="fas fa-calendar-check"></i> Issue Date</th>
+                            <th><i class="fas fa-calendar-times"></i> Expiry Date</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                            <th><i class="fas fa-shield-alt"></i> Risk</th>
+                            <th><i class="fas fa-cogs"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="lc : ${lcs}">
+                            <td data-label="ID" th:text="${lc.lcId}"></td>
+                            <td data-label="Reference Number" th:text="${lc.referenceNumber}"></td>
+                            <td data-label="Applicant Name" th:text="${lc.applicantBank}"></td>
+                            <td data-label="Applicant Country" th:text="${lc.applicantCountry ?: 'N/A'}"></td>
+                            <td data-label="Beneficiary Name" th:text="${lc.beneficiaryBank ?: 'N/A'}"></td>
+                            <td data-label="Beneficiary Country" th:text="${lc.beneficiaryCountry ?: 'N/A'}"></td>
+                            <td data-label="Amount" th:text="${#numbers.formatCurrency(lc.amount)}"></td>
+                            <td data-label="Currency" th:text="${lc.currency ?: 'N/A'}"></td>
+                            <td data-label="Desired Validity" th:text="${lc.desiredValidityPeriod ?: 'N/A'}"></td>
+                            <td data-label="Issue Date">
+                                <span th:if="${lc.issueDate}" th:text="${lc.issueDate.format(T(java.time.format.DateTimeFormatter).ofPattern('dd-MMM-yyyy'))}"></span>
+                                <span th:unless="${lc.issueDate}">N/A</span>
+                            </td>
+                            <td data-label="Expiry Date">
+                                <span th:if="${lc.expiryDate}" th:text="${lc.expiryDate.format(T(java.time.format.DateTimeFormatter).ofPattern('dd-MMM-yyyy'))}"></span>
+                                <span th:unless="${lc.expiryDate}">N/A</span>
+                            </td>
+                            <td data-label="Status" th:text="${lc.status != null ? lc.status.displayName : 'N/A'}"></td>
+                            <td data-label="Risk">
+                                <form th:action="@{/risk/analyze-lc/{lcId}(lcId=${lc.lcId})}" method="post" style="display: inline-block;">
+                                    <button type="submit" class="risk-analyze-button"
+                                            th:classappend="${lc.riskAssessment == 'High' ? 'risk-score-high' : (lc.riskAssessment == 'Moderate' ? 'risk-score-moderate' : (lc.riskAssessment == 'Low' ? 'risk-score-low' : ''))}"
+                                            title="Click to Analyze/View Risk">
+                                        <i class="fas fa-chart-pie"></i> <span th:text="${lc.riskAssessment != null ? lc.riskAssessment : 'Analyze'}"></span>
+                                    </button>
+                                </form>
+                            </td>
+                            <td data-label="Actions" class="action-links">
+                                <a th:href="@{/lc/admin/details/{id}(id=${lc.lcId})}" class="view-button" title="View Details">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a th:href="@{/lc/admin/amend/{id}(id=${lc.lcId})}" class="amend-button" title="Amend LC">
+                                    <i class="fas fa-edit"></i> Amend
+                                </a>
+                                <form th:action="@{/lc/admin/close/{id}(id=${lc.lcId})}" method="post" style="display: inline-block;">
+                                    <button type="submit" class="close-button" onclick="return confirm('Are you sure you want to close this Letter of Credit?');" title="Close LC">
+                                        <i class="fas fa-times-circle"></i> Close
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - TFMS</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3; /* Darker blue for primary actions */
+            --secondary-color: #6c757d; /* Gray for secondary elements */
+            --accent-color: #28a745; /* Green for success/highlights */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: var(--card-shadow);
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+        }
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            background-color: var(--text-dark);
+            padding-top: 20px;
+            color: var(--text-light);
+            box-shadow: var(--card-shadow);
+            position: sticky; /* Make sidebar sticky */
+            top: 0;
+            height: 100vh; /* Full height for sidebar */
+            overflow-y: auto; /* Enable scrolling for long content */
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 12px 20px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+            color: var(--text-light);
+        }
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: bold;
+        }
+        .sidebar h5 {
+            color: var(--text-light);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #495057;
+            text-align: center;
+        }
+        .sidebar h5 span {
+            display: block;
+            font-size: 0.9em;
+            color: #ced4da;
+        }
+
+        /* Content area */
+        .content {
+            padding: 30px;
+            flex-grow: 1; /* Allow content to take available space */
+        }
+        .card {
+            border: none;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: bold;
+            border-bottom: none;
+            padding: 1rem 1.25rem;
+        }
+        .card-body p {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .list-group-item {
+            border: none;
+            padding: 12px 15px;
+            transition: background-color 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: #f0f0f0;
+        }
+        .list-group-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .list-group-item a:hover {
+            text-decoration: underline;
+        }
+
+        .alert-info {
+            background-color: #e2f2ff;
+            border-color: #cce5ff;
+            color: #004085;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                height: auto;
+                padding-bottom: 20px;
+            }
+            .content {
+                padding: 15px;
+            }
+            .navbar-collapse {
+                background-color: var(--primary-color);
+                padding: 10px;
+            }
+            .navbar-nav .nav-item .nav-link {
+                padding-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">TFMS - Customer Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid flex-grow-1">
+        <div class="row h-100">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebarMenu">
+                <div class="sidebar-sticky">
+                    <h5 class="text-center">Welcome, <span th:text="${customer.name}">Customer Name</span>!</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/dashboard">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+						<li class="nav-item">
+						     <a class="nav-link" href="/lc/create">
+						         <i class="fas fa-file-invoice-dollar"></i> Request Letter of Credit
+						     </a>
+						</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/requestguarantee">
+                                <i class="fas fa-handshake"></i> Request Bank Guarantee
+                            </a>
+                        </li>
+						<li class="nav-item">
+						    <a class="nav-link" href="/documents/upload">
+						        <i class="fas fa-upload"></i> Upload Trade Document
+						    </a>
+						</li>
+						<li class="nav-item">
+						    <a class="nav-link" href="/documents/my-documents">
+						        <i class="fas fa-folder-open"></i> View My Documents
+						    </a>
+						</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/lc/my-lcs"> 
+                                <i class="fas fa-list-alt"></i> View My LCs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/myguarantees">
+                                <i class="fas fa-shield-alt"></i> View My Guarantees
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4 content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Customer Dashboard</h1>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-user-circle"></i> Your Profile
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Name:</strong> <span th:text="${customer.name}">Customer Name</span></p>
+                                <p><strong>Email:</strong> <span th:text="${customer.email}">customer@example.com</span></p>
+                                <p><strong>Address:</strong> <span th:text="${customer.address}">123 Main St, Anytown, USA</span></p>
+                                <p><strong>Phone:</strong> <span th:text="${customer.phone}">(123) 456-7890</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-bolt"></i> Quick Actions
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush">
+									<li class="list-group-item"><a href="/lc/create"><i class="fas fa-plus-circle"></i> Request New Letter of Credit</a></li>
+                                    <li class="list-group-item"><a href="/requestguarantee"><i class="fas fa-plus-circle"></i> Request New Bank Guarantee</a></li>         
+                                    <li class="list-group-item"><a href="/documents/upload"><i class="fas fa-plus-circle"></i> Upload New Trade Document</a></li>
+									<li class="list-group-item"><a href="/documents/my-documents"><i class="fas fa-eye"></i> View All My Uploaded Documents</a></li>
+                                    <li class="list-group-item"><a href="/lc/my-lcs"><i class="fas fa-eye"></i> View All My Letters of Credit</a></li>
+                                    <li class="list-group-item"><a href="/myguarantees"><i class="fas fa-eye"></i> View All My Bank Guarantees</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-info-circle"></i> Welcome!</h4>
+                    <p>Welcome to your **Trade Finance Management System (TFMS)** dashboard. Here you can efficiently manage all your trade finance requests, including Letters of Credit and Bank Guarantees, as well as easily upload and view your important trade documents.</p>
+                    <hr>
+                    <p class="mb-0">Use the navigation menu on the left to access different sections of the portal. For any assistance, please contact support.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Toggle sidebar on smaller screens
+        $(document).ready(function() {
+            $('.navbar-toggler').on('click', function() {
+                $('#sidebarMenu').toggleClass('collapse');
+            });
+        });
+    </script>
+</body>
+</html>

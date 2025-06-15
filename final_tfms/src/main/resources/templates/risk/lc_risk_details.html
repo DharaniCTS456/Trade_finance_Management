@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:java="http://www.thymeleaf.org/extras/java">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LC Risk Details - TFMS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #28a745; /* Admin Green */
+            --secondary-color: #6c757d;
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --card-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+            --border-radius: 0.5rem;
+
+            /* Risk Colors */
+            --risk-high-color: #dc3545; /* Danger red */
+            --risk-moderate-color: #ffc107; /* Warning yellow */
+            --risk-low-color: #28a745; /* Success green */
+
+            /* Alert Colors */
+            --alert-success-bg: #d4edda;
+            --alert-success-text: #155724;
+            --alert-danger-bg: #f8d7da;
+            --alert-danger-text: #721c24;
+            --alert-info-bg: #e2f3ff;
+            --alert-info-text: #0056b3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0;
+        }
+        .navbar {
+            background-color: var(--primary-color);
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+        .navbar-brand, .nav-link {
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand i, .nav-link i {
+            margin-right: 8px;
+        }
+
+        .container {
+            flex-grow: 1;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            max-width: 800px; /* Adjusted max-width for better layout */
+        }
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h2 i {
+            margin-right: 15px;
+        }
+        h3 {
+            color: var(--text-dark);
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--text-light);
+            padding: 0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0,0,0,.1);
+            border: none;
+            margin-bottom: 25px;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .detail-row {
+            display: flex;
+            align-items: flex-start; /* Align items to start for multi-line values */
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #e9ecef;
+        }
+        .detail-row:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: var(--text-dark);
+            min-width: 180px; /* Consistent width for labels */
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+        }
+        .detail-label i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        .detail-value {
+            flex-grow: 1;
+            color: #555;
+            font-size: 1.05em;
+            word-break: break-word; /* Ensure long text wraps */
+        }
+
+        /* ----- FIX FOR RISK FACTORS WRAPPING ----- */
+        .detail-value pre {
+            margin-bottom: 0; /* Remove default margin from pre */
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-break: break-word; /* Breaks long words if necessary */
+            background-color: transparent; /* No background */
+            border: none; /* No border */
+            padding: 0; /* No padding */
+            font-size: inherit; /* Inherit font size from parent */
+            color: inherit; /* Inherit color from parent */
+        }
+        .detail-value code {
+            display: block; /* Ensure code block takes full width */
+            white-space: pre-wrap; /* Essential for wrapping within code */
+            word-break: break-word; /* Essential for wrapping within code */
+        }
+        /* ----------------------------------------- */
+
+
+        .risk-section {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05); /* Inner shadow */
+            margin-top: 30px;
+        }
+        .risk-score-high { color: var(--risk-high-color); font-weight: bold; }
+        .risk-score-moderate { color: var(--risk-moderate-color); font-weight: bold; }
+        .risk-score-low { color: var(--risk-low-color); font-weight: bold; }
+
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .btn-primary-custom:hover {
+            background-color: #218838;
+            border-color: #218838;
+            transform: translateY(-2px);
+            color: var(--text-light); /* Ensure text color remains white on hover */
+        }
+        .btn-primary-custom i {
+            margin-right: 10px;
+        }
+
+        .btn-secondary-custom {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--text-light);
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 25px;
+            margin-left: 15px; /* Spacing between buttons */
+        }
+        .btn-secondary-custom:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+            transform: translateY(-2px);
+            color: var(--text-light); /* Ensure text color remains white on hover */
+        }
+        .btn-secondary-custom i {
+            margin-right: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .alert i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .alert-success {
+            color: var(--alert-success-text);
+            background-color: var(--alert-success-bg);
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: var(--alert-danger-text);
+            background-color: var(--alert-danger-bg);
+            border-color: #f5c6cb;
+        }
+        .alert-info {
+            color: var(--alert-info-text);
+            background-color: var(--alert-info-bg);
+            border-color: #b8daff;
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, .05);
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 2em;
+            }
+            h3 {
+                font-size: 1.5em;
+            }
+            .card-body, .risk-section {
+                padding: 20px;
+            }
+            .detail-label {
+                min-width: 140px;
+                font-size: 1em;
+            }
+            .detail-value {
+                font-size: 1em;
+            }
+            .btn-primary-custom, .btn-secondary-custom {
+                width: 100%;
+                margin-left: 0;
+                margin-bottom: 15px;
+            }
+        }
+        @media (max-width: 576px) {
+            h2 {
+                font-size: 1.8em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .detail-label {
+                margin-bottom: 5px;
+            }
+            .detail-value {
+                margin-left: 0;
+            }
+            .alert {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/adashboard"><i class="fas fa-user-shield"></i> TFMS - Admin Portal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/adashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/lc/admin/all"><i class="fas fa-list-alt"></i> Manage LCs <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/alogout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2><i class="fas fa-chart-pie"></i> Letter of Credit Risk Assessment</h2>
+
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div th:if="${letterOfCredit != null}">
+            <div class="card">
+                <div class="card-body">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> Letter of Credit Details</h3>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-id-card"></i> LC ID:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.lcId}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-hashtag"></i> Reference Number:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.referenceNumber}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-building"></i> Applicant Name:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.applicantBank}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-globe-americas"></i> Applicant Country:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.applicantCountry}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-university"></i> Beneficiary Name:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.beneficiaryBank}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-globe-americas"></i> Beneficiary Country:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.beneficiaryCountry}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-dollar-sign"></i> Amount:</span>
+                        <span class="detail-value" th:text="${#numbers.formatCurrency(letterOfCredit.amount)} + ' ' + ${letterOfCredit.currency}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-info-circle"></i> Status:</span>
+                        <span class="detail-value" th:text="${letterOfCredit.status.displayName}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="risk-section">
+                <h3><i class="fas fa-chart-line"></i> Risk Assessment Details</h3>
+                <div th:if="${riskAssessment != null}">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-id-badge"></i> Risk ID:</span>
+                        <span class="detail-value" th:text="${riskAssessment.riskId}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-receipt"></i> Transaction Reference:</span>
+                        <span class="detail-value" th:text="${riskAssessment.transactionReference}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calculator"></i> Calculated Risk Score:</span>
+                        <span class="detail-value">
+                            <span th:text="${#numbers.formatDecimal(riskAssessment.riskScore, 0, 2)}"
+                                  th:classappend="${riskAssessment.riskLevel == 'High' ? 'risk-score-high' : (riskAssessment.riskLevel == 'Very High' ? 'risk-score-high' : (riskAssessment.riskLevel == 'Moderate' ? 'risk-score-moderate' : 'risk-score-low'))}">
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-exclamation-triangle"></i> Risk Level:</span>
+                        <span class="detail-value">
+                            <span th:text="${riskAssessment.riskLevel}"
+                                  th:classappend="${riskAssessment.riskLevel == 'High' ? 'risk-score-high' : (riskAssessment.riskLevel == 'Very High' ? 'risk-score-high' : (riskAssessment.riskLevel == 'Moderate' ? 'risk-score-moderate' : 'risk-score-low'))}">
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calendar-alt"></i> Assessment Date:</span>
+                        <span class="detail-value" th:text="${#temporals.format(riskAssessment.assessmentDate, 'dd-MMM-yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-list-ul"></i> Risk Factors:</span>
+                        <span class="detail-value"><pre><code><span th:text="${riskAssessment.riskFactors}"></span></code></pre></span>
+                    </div>
+                </div>
+                <div th:unless="${riskAssessment != null}" class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> No risk assessment record found for this Letter of Credit.
+                </div>
+
+                <form th:action="@{/risk/analyze-lc/{lcId}(lcId=${letterOfCredit.lcId})}" method="post" class="text-center">
+                    <button type="submit" class="btn-primary-custom"><i class="fas fa-sync-alt"></i> Re-Analyze Risk</button>
+                </form>
+            </div>
+            <div class="text-center mt-4">
+                <a th:href="@{/lc/admin/details/{id}(id=${letterOfCredit.lcId})}" class="btn-secondary-custom"><i class="fas fa-arrow-left"></i> Back to LC Details</a>
+                <a th:href="@{/lc/admin/all}" class="btn-secondary-custom"><i class="fas fa-list"></i> Back to All LCs</a>
+            </div>
+        </div>
+        <div th:unless="${letterOfCredit != null}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> Letter of Credit not found.
+            <div class="text-center mt-3">
+                <a th:href="@{/lc/admin/all}" class="btn-secondary-custom"><i class="fas fa-list"></i> Back to All LCs</a>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2025 TFMS. All rights reserved.</span>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
